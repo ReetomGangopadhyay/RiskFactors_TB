@@ -1,0 +1,205 @@
+---
+title: "TB_analysis"
+author: "Reetom Gangopadhyay"
+date: "2024-07-31"
+output: pdf_document
+---
+
+```{r,warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+
+data <- read.csv("clean_ukr.csv")
+
+if ("X" %in% colnames(data)) {
+  data <- data %>% select(-X)
+} # not necessary but for cleanliness 
+
+head(data)
+str(data)
+
+```
+
+```{r}
+
+library(glmnet)
+library(caret)
+
+# data$prev_treatment <- ifelse(data$new_prev == "Yes", 1, 0)
+
+#### RUN ONCE MAX
+
+data$hiv <- ifelse(is.na(data$takes_art), 0, 1)
+
+data$Cot <- ifelse(is.na(data$Cotrimoxazole.treatment), 0, 1)
+
+data$prev_treatment <- ifelse(data$new_prev == "Previously treated", 1, 0)
+
+
+
+
+
+```
+
+
+```{r}
+# str(data)
+
+data <- data %>%
+  mutate(
+    final_outcome_group = as.factor(final_outcome_group),
+    Sex = as.factor(Sex),
+    Region = as.factor(Region),
+    imputed_weight = as.numeric(imputed_weight),
+    elapsed_time = as.numeric(elapsed_time),
+    Age = as.numeric(Age),
+    DST_R = as.factor(DST_R),
+    
+    Localization = as.factor(Localization),
+    hiv_def = as.factor(hiv_def),
+    hiv = as.factor(hiv),
+    Cot = as.factor(Cot),
+    Alcohol.abuse = as.factor(Alcohol.abuse),
+    Injecting.drug.user = as.factor(Injecting.drug.user),
+    Homeless = as.factor(Homeless),
+    Unemployed = as.factor(Unemployed),
+    healthcare_worker = as.factor(healthcare_worker),
+    Prisoner = as.factor(Prisoner),
+    migrant_refugee = as.factor(migrant_refugee),
+    prev_treatment = as.factor(prev_treatment),
+    
+    Bactec = as.factor(Bactec),
+    LJ = as.factor(LJ),
+    GeneXpert = as.factor(GeneXpert),
+    DST_E = as.factor(DST_E),
+    DST_Z = as.factor(DST_Z),
+    DST_S = as.factor(DST_S),
+    DST_H = as.factor(DST_H),
+    DST_Am = as.factor(DST_Am),
+    DST_Cm = as.factor(DST_Cm),
+    DST_LFX = as.factor(DST_LFX),
+    DST_MFX = as.factor(DST_MFX),
+    DST_PAS = as.factor(DST_PAS),
+    DST_Km = as.factor(DST_Km),
+    DST_Ofx = as.factor(DST_Ofx),
+    DST_Et = as.factor(DST_Et),
+    DST_Lzd = as.factor(DST_Lzd),
+    DST_Cs = as.factor(DST_Cs),
+  )
+
+# Set the response variable to 'dropout' if 'Treatment discontinuation' in 'final_outcome_group'
+data$dropout <- ifelse(data$final_outcome_group == "Treatment discontinuation", 1, 0)
+
+# Confirm creation of 'dropout' variable
+table(data$dropout) ## correct///
+
+```
+
+
+```{r}
+library(glmnet)
+library(caret)
+
+# Define the response variable (Y) and predictor variables (X)
+Y <- data$dropout 
+X <- model.matrix(dropout ~ final_outcome_group + Sex + Region + imputed_weight + Age +
+                  DST_R + Localization + hiv_def + hiv + Cot + Alcohol.abuse + Injecting.drug.user +
+                  Homeless + Unemployed + healthcare_worker + Prisoner + migrant_refugee + prev_treatment +
+                  Bactec + LJ + GeneXpert + DST_E + DST_Z + DST_S + DST_H + DST_Am + DST_Cm +
+                  DST_LFX + DST_MFX + DST_PAS + DST_Km + DST_Ofx + DST_Et + DST_Lzd +
+                  DST_Cs, data = data)#[,-1]  # to exclude intercept column
+
+#X <- model.matrix(dropout ~ imputed_weight + Age + Sex + hiv + Localization + Region , data = data)#[,-1]  # to exclude intercept column
+
+
+X <- model.matrix(dropout ~ Sex + Region + imputed_weight + Age +
+                  DST_R + Localization + hiv_def + hiv + Cot + Alcohol.abuse + Injecting.drug.user +
+                  Homeless + Unemployed + healthcare_worker + Prisoner + migrant_refugee, data = data) 
+
+# Standardize the predictor variables
+#X <- scale(X)
+
+set.seed(123)
+cv_lasso <- cv.glmnet(X, Y, family = "binomial", alpha = 1)
+
+# Extract the best lambda
+best_lambda <- cv_lasso$lambda.min
+
+# Fit the final LASSO model with the best lambda
+lasso_model <- glmnet(X, Y, family = "binomial", alpha = 1, lambda = best_lambda)
+
+# Coefficients of the final model
+lasso_coef <- coef(lasso_model)
+print(lasso_coef)
+
+# Visualize the cross-validation results
+plot(cv_lasso)
+```
+
+```{r testing parameters}
+
+# Check the number of levels for each factor variable
+factor_vars <- c("final_outcome_group", "Sex", "Region", "DST_R", "Localization", "hiv_def", 
+                 "hiv", "Cot", "Alcohol.abuse", "Injecting.drug.user", "Homeless", 
+                 "Unemployed", "healthcare_worker", "Prisoner", "migrant_refugee", 
+                 "prev_treatment", "Bactec", "LJ", "GeneXpert", "DST_E", "DST_Z", "DST_S", 
+                 "DST_H", "DST_Am", "DST_Cm", "DST_LFX", "DST_MFX", "DST_PAS", "DST_Km", 
+                 "DST_Ofx", "DST_Et", "DST_Lzd", "DST_Cs")
+
+for (var in factor_vars) {
+  levels_count <- length(unique(data[[var]]))
+ # if (levels_count == 1) {
+  cat(var, "has", levels_count, "levels.\n")
+  #}
+}
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Data: Variables and their coefficients
+variables <- c("Homeless1", "Prisoner1", "RegionTranscarpathian", "migrant_refugee1", "DST_R1", 
+               "SexMale", "RegionLugansk", "hiv_defUnknown", "RegionDnipropetrovsk", 
+               "Alcohol.abuse1", "Unemployed1", "RegionZaporozhye", "RegionOdessa", 
+               "RegionKharkiv", "RegionDonetsk", "RegionIvano-Frankivsk", "RegionChernihiv", 
+               "Localization1", "Injecting.drug.user1", "RegionTernopil", "RegionVolyn", 
+               "Localization2", "RegionKievskaya", "imputed_weight", "Age", 
+               "RegionKyiv.City", "RegionTest", "hiv_def1", "hiv1", "RegionVinnitsa", 
+               "RegionKirovograd", "DST_R2", "RegionZhytomyr", "RegionPoltava", 
+               "RegionSumy", "RegionKhmelnitsky", "RegionYanovsky.Institute", 
+               "RegionNikolaev", "DST_R3", "healthcare_worker1")
+
+coefficients <- c(0.994386417, 0.516666532, 0.503507354, 0.403257193, 0.397147364, 
+                  0.351273113, 0.345788220, 0.293824769, 0.299429022, 0.291769697, 
+                  0.289589063, 0.275321353, 0.233051249, 0.121476722, 0.119576909, 
+                  0.113253000, 0.106911001, 0.167582541, 0.059204634, 0.042530824, 
+                  0.021359920, 0.013059302, -0.031851508, -0.006318012, -0.008042048, 
+                  -0.014630657, -0.054199704, -0.043062796, -0.068369619, -0.070167825, 
+                  -0.098404215, -0.115468401, -0.132028117, -0.178020938, -0.426661069, 
+                  -0.277951744, -0.283762019, -0.311876483, -1.270319397, -1.418704085)
+
+# Create a data frame
+df <- data.frame(Variable = variables, Coefficient = coefficients)
+
+# Plot the bar chart using ggplot2
+ggplot(df, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  coord_flip() +
+  labs(title = "Lasso Selected Variables and Their Coefficients",
+       x = "Variable",
+       y = "Coefficient") +
+  theme_minimal()
+
+
+
+```
+
+
+
+
+
+
+
