@@ -26,15 +26,16 @@ str(data)
 library(glmnet)
 library(caret)
 
-# data$prev_treatment <- ifelse(data$new_prev == "Yes", 1, 0)
-
 #### RUN ONCE MAX
 
 data$hiv <- ifelse(is.na(data$takes_art), 0, 1)
 
 data$Cot <- ifelse(is.na(data$Cotrimoxazole.treatment), 0, 1)
 
+
+data$new_prev[is.na(data$new_prev)] <- "New"
 data$prev_treatment <- ifelse(data$new_prev == "Previously treated", 1, 0)
+
 
 
 
@@ -98,12 +99,12 @@ table(data$dropout) ## correct///
 
 
 ```{r}
-library(glmnet)
-library(caret)
+#library(glmnet)
+#library(caret)
 
 # Define the response variable (Y) and predictor variables (X)
 Y <- data$dropout 
-X <- model.matrix(dropout ~ final_outcome_group + Sex + Region + imputed_weight + Age +
+X <- model.matrix(dropout ~ Sex + Region + imputed_weight + Age +
                   DST_R + Localization + hiv_def + hiv + Cot + Alcohol.abuse + Injecting.drug.user +
                   Homeless + Unemployed + healthcare_worker + Prisoner + migrant_refugee + prev_treatment +
                   Bactec + LJ + GeneXpert + DST_E + DST_Z + DST_S + DST_H + DST_Am + DST_Cm +
@@ -113,12 +114,9 @@ X <- model.matrix(dropout ~ final_outcome_group + Sex + Region + imputed_weight 
 #X <- model.matrix(dropout ~ imputed_weight + Age + Sex + hiv + Localization + Region , data = data)#[,-1]  # to exclude intercept column
 
 
-X <- model.matrix(dropout ~ Sex + Region + imputed_weight + Age +
-                  DST_R + Localization + hiv_def + hiv + Cot + Alcohol.abuse + Injecting.drug.user +
-                  Homeless + Unemployed + healthcare_worker + Prisoner + migrant_refugee, data = data) 
-
-# Standardize the predictor variables
-#X <- scale(X)
+#X <- model.matrix(dropout ~ Sex + Region + imputed_weight + Age +
+ #                 DST_R + Localization + hiv_def + hiv + Cot + Alcohol.abuse + Injecting.drug.user +
+  #                Homeless + Unemployed + healthcare_worker + Prisoner + migrant_refugee, data = data) 
 
 set.seed(123)
 cv_lasso <- cv.glmnet(X, Y, family = "binomial", alpha = 1)
@@ -135,8 +133,75 @@ print(lasso_coef)
 
 # Visualize the cross-validation results
 plot(cv_lasso)
+
+# check number of rows of variable in X
+nrow(X)
 ```
 
+
+```{r}
+library(ggplot2)
+
+# Data: Variables and their coefficients
+variables <- c("SexMale", "RegionChernihiv", "RegionChernivtsi", "RegionDnipropetrovsk", 
+               "RegionDonetsk", "RegionIvano-Frankivsk", "RegionKharkiv", "RegionKherson", 
+               "RegionKhmelnitsky", "RegionKievskaya", "RegionKirovograd", "RegionKyiv.City", 
+               "RegionLugansk", "RegionLviv", "RegionNikolaev", "RegionOdessa", "RegionPoltava", 
+               "RegionRivne", "RegionSumy", "RegionTernopil", "RegionTest", 
+               "RegionTranscarpathian", "RegionVinnitsa", "RegionVolyn", 
+               "RegionYanovsky.Institute", "RegionZaporozhye", "RegionZhytomyr", 
+               "imputed_weight", "Age", "DST_R1", "DST_R2", "DST_R3", "Localization1", 
+               "Localization2", "hiv_def1", "hiv_defUnknown", "hiv1", "Cot1", "Alcohol.abuse1", 
+               "Injecting.drug.user1", "Homeless1", "Unemployed1", "healthcare_worker1", 
+               "Prisoner1", "migrant_refugee1", "prev_treatment1", "Bactec++", 
+               "Bactec+++", "BactecCulture.at.work", "BactecNegative", "BactecOvergrown", 
+               "BactecPositive", "LJ++", "LJ+++", "LJCulture.at.work", "LJNegative", 
+               "LJOvergrown", "LJPositive", "GeneXpert1", "DST_E1", "DST_E2", "DST_E3", 
+               "DST_Z1", "DST_Z2", "DST_Z3", "DST_S1", "DST_S2", "DST_S3", "DST_H1", "DST_H2", 
+               "DST_H3", "DST_Am1", "DST_Am2", "DST_Am3", "DST_Cm1", "DST_Cm2", "DST_Cm3", 
+               "DST_LFX1", "DST_LFX2", "DST_LFX3", "DST_MFX1", "DST_MFX2", "DST_MFX3", 
+               "DST_PAS1", "DST_PAS2", "DST_PAS3", "DST_Km1", "DST_Km2", "DST_Km3", 
+               "DST_Ofx1", "DST_Ofx2", "DST_Ofx3", "DST_Et1", "DST_Et2", "DST_Et3", 
+               "DST_Lzd1", "DST_Lzd2", "DST_Lzd3", "DST_Cs1", "DST_Cs2", "DST_Cs3")
+
+coefficients <- c(0.351697894, 0.106650007, -0.013731107, 0.285392375, 0.049118274, 
+                  0.144977510, 0.135062163, NA, -0.261594812, -0.014462811, -0.082027650, 
+                  -0.053233680, 0.420157172, 0.039570567, -0.317895969, 0.262469062, 
+                  -0.190017330, -0.899950883, -0.410905399, 0.033478896, -0.637504415, 
+                  0.536330720, NA, 0.046957345, -0.295738998, 0.297372145, -0.122727215, 
+                  -0.006787342, -0.008295576, 0.237384343, -0.132642686, -0.349166326, 
+                  0.148300384, 0.007178760, -0.066980367, 0.315850537, -0.080231309, 
+                  0.025859433, 0.291017825, 0.064314498, 0.999478318, 0.257696255, 
+                  -1.430506283, 0.495007805, 0.378466556, 0.099693839, 0.219124059, 
+                  -0.207184703, -0.737445677, -0.006935377, -0.240456459, -0.040599683, 
+                  -0.041688163, 0.008670555, -0.225356789, 0.009078344, -0.141449104, 
+                  0.016567474, -0.023998702, -0.075194550, NA, -1.214283468, -0.139525133, 
+                  NA, 0.351227798, 0.043748060, 0.041188569, -0.338502432, 0.435797353, 
+                  -0.038491102, 0.244660297, 0.135941266, 0.211822697, NA, -0.004392885, 
+                  -0.003972153, NA, -0.061430186, -0.013817012, 2.189122281, -0.233981513, 
+                  -0.143195895, -3.242326954, 0.119945215, 0.018262854, -3.266525503, 
+                  -0.220318952, -0.182729738, 0.605282079, -0.193857059, 0.170199959, 
+                  3.441514094, -0.102548524, NA, NA, -1.104955138, -0.744072176, 1.392621314, 
+                  NA, 0.075462202, -0.052817734)
+
+df <- data.frame(Variable = variables, Coefficient = coefficients)
+df <- na.omit(df)
+
+ggplot(df, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  coord_flip() +
+  labs(title = "Lasso Selected Variables and Their Coefficients",
+       x = "Variable",
+       y = "Coefficient") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 4))
+
+
+```
+
+
+
+## No need to run
 ```{r testing parameters}
 
 # Check the number of levels for each factor variable
@@ -157,48 +222,12 @@ for (var in factor_vars) {
 
 ```
 
+## CART Analysis
 ```{r}
-library(ggplot2)
 
-# Data: Variables and their coefficients
-variables <- c("Homeless1", "Prisoner1", "RegionTranscarpathian", "migrant_refugee1", "DST_R1", 
-               "SexMale", "RegionLugansk", "hiv_defUnknown", "RegionDnipropetrovsk", 
-               "Alcohol.abuse1", "Unemployed1", "RegionZaporozhye", "RegionOdessa", 
-               "RegionKharkiv", "RegionDonetsk", "RegionIvano-Frankivsk", "RegionChernihiv", 
-               "Localization1", "Injecting.drug.user1", "RegionTernopil", "RegionVolyn", 
-               "Localization2", "RegionKievskaya", "imputed_weight", "Age", 
-               "RegionKyiv.City", "RegionTest", "hiv_def1", "hiv1", "RegionVinnitsa", 
-               "RegionKirovograd", "DST_R2", "RegionZhytomyr", "RegionPoltava", 
-               "RegionSumy", "RegionKhmelnitsky", "RegionYanovsky.Institute", 
-               "RegionNikolaev", "DST_R3", "healthcare_worker1")
-
-coefficients <- c(0.994386417, 0.516666532, 0.503507354, 0.403257193, 0.397147364, 
-                  0.351273113, 0.345788220, 0.293824769, 0.299429022, 0.291769697, 
-                  0.289589063, 0.275321353, 0.233051249, 0.121476722, 0.119576909, 
-                  0.113253000, 0.106911001, 0.167582541, 0.059204634, 0.042530824, 
-                  0.021359920, 0.013059302, -0.031851508, -0.006318012, -0.008042048, 
-                  -0.014630657, -0.054199704, -0.043062796, -0.068369619, -0.070167825, 
-                  -0.098404215, -0.115468401, -0.132028117, -0.178020938, -0.426661069, 
-                  -0.277951744, -0.283762019, -0.311876483, -1.270319397, -1.418704085)
-
-# Create a data frame
-df <- data.frame(Variable = variables, Coefficient = coefficients)
-
-# Plot the bar chart using ggplot2
-ggplot(df, aes(x = reorder(Variable, Coefficient), y = Coefficient)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  coord_flip() +
-  labs(title = "Lasso Selected Variables and Their Coefficients",
-       x = "Variable",
-       y = "Coefficient") +
-  theme_minimal()
-
-
+###  tbd. ###
 
 ```
-
-
-
 
 
 
