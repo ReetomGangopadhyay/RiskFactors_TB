@@ -1,124 +1,28 @@
-# infectious_disease_SIBS
+# Assessing Risk Factors for Treatment Discontinuation in Tuberculosis Patients in Ukraine
 
-## Data Cleaning Key
+This repository contains the code and analysis from our study on treatment adherence in tuberculosis (TB), specifically focusing on the factors influencing patient dropout from TB treatment in Ukraine from 2018 to 2021. The goal of this project is to identify key socio-economic and clinical risk factors that contribute to treatment discontinuation and to provide insights for public health interventions.
 
-# Key for Data
+## Project Overview:
+The study explores patient dropout from TB treatment using a combination of statistical and machine learning techniques:
 
-**person**  
-**case_id**  
-**eTB.Manager.ID**  
-**Outcome**  
-**Sex**  
-**Age**  
-- Fixed two entries showing ">100" by taking modulo 100, i.e., 134 → 34.
+- Multiple Logistic Regression (R): Establishes relationships between socio-economic, demographic, and clinical factors and treatment dropout.
+- LASSO Regression (R): Used for variable selection, narrowing down the most significant predictors.
+- Machine Learning Models (Python): Classification and Regression Trees (CART) and HistGradientBoostedClassifier were employed to predict dropout, using GridSearch cross-validation to optimize the models.
 
-**Region**  
-**Urban.Rural**  
-**Treatment.start.date**  
-- Renamed to **start_date** and converted to date/time format.
+## Tools
 
-**Treatment.end.date**  
-- Renamed to **end_date** and converted to date/time format.
+- R: Used for data wrangling, cleaning, exploratory data analysis (EDA), and statistical modeling (logistic regression, LASSO).
+- Python: Employed for machine learning models (CART, HistGradientBoostedClassifier) and model optimization using GridSearch.
 
-**Localization**  
-- Changed to 1 for Pulmonary, 2 for Extra-pulmonary, and 0 for Both. No missing values.
+## Getting Started
 
-**Cavitation**  
-- Changed to 1 for Yes, 0 for No.
+Ensure you have the following software installed:
 
-**hiv_def**  
-- 0 for negative, 1 for positive.
+- R (with necessary libraries: glmnet, dplyr, ggplot2, etc.)
+- Python 3.x (with necessary libraries: scikit-learn, pandas, numpy, etc.)
+-      additionally make sure your system has enough RAM to properly run the script.
 
-**HIV.testing**  
-- Renamed to **hiv_testing** and changed to date/time format.
 
-**Has.started.to.take.ART.**  
-- Renamed to **takes_art**. Set start date for ART to m/d/y format. Consider adding missing values as the epoch (commented out for now).
 
-**Cotrimoxazole.treatment**  
-- Changed to m/d/y format and consider adding epoch.
 
-**Alcohol.abuse**  
-- Set to 0 if ‘-’ or NA, otherwise set to 1 for yes.
-
-**Injecting.drug.user**  
-- Set to 0 if ‘-’ or NA, otherwise set to 1 for yes.
-
-**Homeless**  
-- Set to 0 for No and 1 for Yes. Consider ‘-’ to be No.
-
-**Unemployed**  
-- Set to 0 for No and 1 for Yes. Consider ‘-’ to be No.
-
-**Healthcare.worker**  
-- Renamed to **healthcare_worker** and set to 0 for No and 1 for Yes. Consider ‘-’ to be No.
-
-**Prisoner**  
-- Set to 0 for No and 1 for Yes. Consider ‘-’ to be No.
-
-**Sample.collection.date**  
-- Renamed to **sample_date** and changed to date/time format.
-
-**Weight**  
-- **NEW VARIABLE:** **imputed_weights**
-
-#### Method:
-
-1. Convert weights from pounds to kilograms if they are between 140 and 240.
-2. Add a decimal point for weights between 240 and 1000.
-3. Set values > 1000 to NA and impute.
-
-Multiple imputation based on Age, Sex, Weight using the MICE package in R. The distribution looks correct.
-
-**Smear.result**  
-**Culture.result.Bactec**  
-- Renamed to **Bactec** and changed NA values to negative.
-
-**Culture.result.LowensteinJensen**  
-- Renamed to **LJ** and changed NA values to negative.
-
-**GeneXpert**  
-- Set to 0 for Negative and 1 for Positive. Consider NA as Negative.
-
-### DST Vars
-**DST.result.E**  
-**DST.result.Z**  
-**DST.result.R**  
-**DST.result.S**  
-**DST.result.H**  
-**DST.result.Am**  
-**DST.result.Cm**  
-**DST.result.Lfx**  
-**DST.result.Mfx**  
-**DST.result.PAS**  
-**DST.result.Km**  
-**DST.result.Ofx**  
-**DST.result.Et**  
-**DST.result.Gfx**  
-**DST.result.Lzd**  
-**DST.result.Cs**  
-**DST.result.Cfx**  
-**DST.result.Sfx**  
-**DST.result.Pa**
-
-- For all DST results: 
-  - Make missing values 0, "Resistant" 1, "Sensitive" 2, and "Contaminated" 3.
-  - Apply naming convention **DST_XYZ**, e.g., **DST.results.R** → **DST_R**. Adjust names for multiple letters as needed.
-
-**migrant_refugee**  
-- Set to 0 for No and 1 for Positive.
-
-**new_prev**  
-**case.start**  
-- Changed to date/time format.
-
-**case.end**  
-- Changed to date/time format.
-
-**fake.failure**  
-**final_outcome**  
-**final_outcome_group**
-
----
-
-There are three new variables; note this before analysis. Some variables are not clean on purpose.
+For study results, please refer to the paper contained within this repository. Additionally, please email me if you would like to use any of this code or data for any other projects at rgangopa@bu.edu.
