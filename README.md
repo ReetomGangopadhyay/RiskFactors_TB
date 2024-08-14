@@ -1,6 +1,6 @@
 # Assessing Risk Factors for Treatment Discontinuation in Tuberculosis Patients in Ukraine
 
-This repository contains the code and analysis from our study on treatment adherence in tuberculosis (TB), specifically focusing on the factors influencing patient dropout from TB treatment in Ukraine from 2018 to 2021. The goal of this project is to identify key socio-economic and clinical risk factors that contribute to treatment discontinuation and to provide insights for public health interventions.
+This repository contains the code and analysis from our study on treatment adherence in tuberculosis (TB), specifically focusing on the factors influencing patient dropout from TB treatment in Ukraine from 2018 to 2021. This project aims to identify key socio-economic and clinical risk factors that contribute to treatment discontinuation and provide insights for public health interventions.
 
 ## Project Overview:
 The study explores patient dropout from TB treatment using a combination of statistical and machine learning techniques:
@@ -20,7 +20,7 @@ Ensure you have the following software installed:
 
 - **R** (with necessary libraries: `glmnet`, `dplyr`, `ggplot2`, etc.)
 - **Python 3.x** (with necessary libraries: `scikit-learn`, `pandas`, `numpy`, etc.)
-  - Additionally, ensure your system has enough RAM to properly run the script.
+  - Ensure your system has enough RAM to run the script properly.
 
 
-For study results, please refer to the paper contained within this repository. Additionally, please email me if you would like to use any of this code or data for any other projects at rgangopa@bu.edu.
+This is the final project for the Boston University SIBS program. For study results, please refer to the paper in this repository. Additionally, please email me at rgangopa@bu.edu if you would like to use any of this code or data for any other projects.
