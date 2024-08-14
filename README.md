@@ -20,7 +20,7 @@ Ensure you have the following software installed:
 
 - R (with necessary libraries: glmnet, dplyr, ggplot2, etc.)
 - Python 3.x (with necessary libraries: scikit-learn, pandas, numpy, etc.)
--      additionally make sure your system has enough RAM to properly run the script.
+*- Additionally, ensure your system has enough RAM to properly run the script.
 
 
 
