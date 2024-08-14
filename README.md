@@ -11,18 +11,16 @@ The study explores patient dropout from TB treatment using a combination of stat
 
 ## Tools
 
-- R: Used for data wrangling, cleaning, exploratory data analysis (EDA), and statistical modeling (logistic regression, LASSO).
-- Python: Employed for machine learning models (CART, HistGradientBoostedClassifier) and model optimization using GridSearch.
+- **R**: Used for data wrangling, cleaning, exploratory data analysis (EDA), and statistical modeling (logistic regression, LASSO).
+- **Python**: Employed for machine learning models (CART, HistGradientBoostedClassifier) and model optimization using GridSearch.
 
 ## Getting Started
 
 Ensure you have the following software installed:
 
-- R (with necessary libraries: glmnet, dplyr, ggplot2, etc.)
-- Python 3.x (with necessary libraries: scikit-learn, pandas, numpy, etc.)
-*- Additionally, ensure your system has enough RAM to properly run the script.
-
-
+- **R** (with necessary libraries: `glmnet`, `dplyr`, `ggplot2`, etc.)
+- **Python 3.x** (with necessary libraries: `scikit-learn`, `pandas`, `numpy`, etc.)
+  - Additionally, ensure your system has enough RAM to properly run the script.
 
 
 For study results, please refer to the paper contained within this repository. Additionally, please email me if you would like to use any of this code or data for any other projects at rgangopa@bu.edu.
